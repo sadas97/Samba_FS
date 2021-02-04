@@ -1,2 +1,14 @@
 #!/bin/bash
 
+if [ "$EUID" == 0 ]; then
+
+    apt install samba
+
+    printf "To share a home folder of a user you must create th user in samba using:"\
+"smbpasswd -a username"
+
+else
+
+    printf "This script must be run as root"
+
+fi
