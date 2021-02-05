@@ -2,10 +2,34 @@
 
 if [ "$EUID" == 0 ]; then
 
-    apt install samba
+    printf "Choose your configuration\n1 - Configure as a Standalone File Server\n"\
+"2 - Configure as Domain Member\n"
 
-    printf "To share a home folder of a user you must create th user in samba using:"\
-"smbpasswd -a username"
+    ConfigReset=1
+    while [ "${ConfigReset}" == 1 ]; do
+	if [ -z "${ConfigMessage}" ]; then
+	    ChoiceMessage=1
+	elif [ "${ConfigMessage}" ]; then
+	    echo "Must enter 1 or 2"
+	fi
+
+	read -p ">" ConfigChoice
+
+	if [ "${ConfigChoice}" == 1 ] || [ "${ConfigChoice}" == 2 ]; then
+	    ConfigReset=0
+	fi
+    done
+
+
+    if [ "${ConfigChoice}" == 1 ]; then
+	apt install samba
+
+#	printf "To share a home folder of a user you must create th user in samba using:"\
+#"smbpasswd -a username"
+
+#potentially choices for configuration (read only, browsable....)
+    elif [ "${ConfigChoice}" == 2 ]; then
+	
 
 else
 
