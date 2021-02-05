@@ -29,7 +29,32 @@ if [ "$EUID" == 0 ]; then
 
 #potentially choices for configuration (read only, browsable....)
     elif [ "${ConfigChoice}" == 2 ]; then
-	
+
+	while [ -z "${KerberosRealm}" ]; then
+	    if [ -z "${KRBMessage}" ]; then
+		KRBMessage=1
+	    elif [ "${KRBMessage}" ]; then
+		echo "Local IP must be entered"
+	    fi
+	    read -p "Enter the local IP of this machine:" KerberosRealm
+	done
+
+	while [ -z "${LocalIP}" ]; then
+	    if [ -z "${LocalIPMessage}" ]; then
+		LocalIPMessage=1
+	    elif [ "${LocalIPMessage}" ]; then
+		echo "Local IP must be entered"
+	    fi
+	    read -p "Enter the local IP of this machine:" LocalIP
+	done
+
+	apt install acl attr samba samba-dsdb-modules samba-vfs-modules winbind libpam-winbind libnss-winbind libpam-krb5 krb5-config krb5-user dnsutils
+
+	printf "\nnameserver ${LocalIP}\nsearch ${KerberosRealm}\n" >> /etc/resolvconf/resolv.conf.d/head
+	systemctl restart resolvconf
+
+	printf "[libdefaults]\n default_realm = ${KerberosRealm}\ndns_lookup_realm = false\ndns_lookup_kdc = true" > /etc/krb5.conf
+
 
 else
 
