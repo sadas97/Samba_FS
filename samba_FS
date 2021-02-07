@@ -55,6 +55,19 @@ if [ "$EUID" == 0 ]; then
 
 	printf "[libdefaults]\n default_realm = ${KerberosRealm}\ndns_lookup_realm = false\ndns_lookup_kdc = true" > /etc/krb5.conf
 
+	cp ./.smb.conf /etc/samba/smb.conf
+	smbcontrol all reload-config
+
+	net ads join -U administrator
+
+	passwdline=$(cat /etc/nsswitch.conf | grep -w passwd)
+	groupline=$(cat /etc/nsswitch.conf | grep -w group)
+	passwdlinenew="${passwdline} winbind"
+	grouplinenew="${groupline} winbind"
+
+	sed -i "s/${passwdline}/${passwdlinenew}/" /etc/nsswitch.conf
+	sed -i "s/${groupline}/${grouplinenew}/" /etc/nsswitch.conf
+
 
 else
 
