@@ -68,6 +68,12 @@ if [ "$EUID" == 0 ]; then
 	sed -i "s/${passwdline}/${passwdlinenew}/" /etc/nsswitch.conf
 	sed -i "s/${groupline}/${grouplinenew}/" /etc/nsswitch.conf
 
+	pkill smbd
+	pkill winbindd
+	pkill nmbd
+
+	systemctl start smbd
+	systemctl start winbind
 
 else
 
