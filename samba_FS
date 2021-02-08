@@ -50,14 +50,15 @@ if [ "$EUID" == 0 ]; then
 
 	apt install acl attr samba samba-dsdb-modules samba-vfs-modules winbind libpam-winbind libnss-winbind libpam-krb5 krb5-config krb5-user dnsutils
 
-	printf "\nnameserver ${PDCIP}\nsearch ${KerberosRealm}\n" >> /etc/resolvconf/resolv.conf.d/head
+	printf "\nnameserver ${PDCIP}\nsearch ${KerberosRealm^^}\n" >> /etc/resolvconf/resolv.conf.d/head
 	systemctl restart resolvconf
 
-	printf "[libdefaults]\n default_realm = ${KerberosRealm}\ndns_lookup_realm = false\ndns_lookup_kdc = true" > /etc/krb5.conf
+	printf "[libdefaults]\n default_realm = ${KerberosRealm^^}\ndns_lookup_realm = false\ndns_lookup_kdc = true" > /etc/krb5.conf
 
 	cp ./.smb.conf /etc/samba/smb.conf
 	smbcontrol all reload-config
 
+	sleep 10
 	net ads join -U administrator
 
 	passwdline=$(cat /etc/nsswitch.conf | grep -w passwd)
