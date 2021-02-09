@@ -1,6 +1,7 @@
 #!/bin/bash
 
 if [ "$EUID" == 0 ]; then
+export LOGNAME=root
 
     printf "Choose your configuration\n1 - Configure as a Standalone File Server\n"\
 "2 - Configure as Domain Member\n"
@@ -69,12 +70,7 @@ if [ "$EUID" == 0 ]; then
 	sed -i "s/${passwdline}/${passwdlinenew}/" /etc/nsswitch.conf
 	sed -i "s/${groupline}/${grouplinenew}/" /etc/nsswitch.conf
 
-	pkill smbd
-	pkill winbindd
-	pkill nmbd
-
-	systemctl start smbd
-	systemctl start winbind
+	systemctl restart smbd nmbd winbindd
 
     fi
 
