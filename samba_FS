@@ -59,7 +59,9 @@ export LOGNAME=root
 	cp ./.smb.conf /etc/samba/smb.conf
 	smbcontrol all reload-config
 
-	sleep 10
+#	ifdown ens18
+
+#	sleep 10
 	net ads join -U administrator
 
 	passwdline=$(cat /etc/nsswitch.conf | grep -w passwd)
@@ -70,7 +72,7 @@ export LOGNAME=root
 	sed -i "s/${passwdline}/${passwdlinenew}/" /etc/nsswitch.conf
 	sed -i "s/${groupline}/${grouplinenew}/" /etc/nsswitch.conf
 
-	systemctl restart smbd nmbd winbindd
+	systemctl restart smbd nmbd winbind
 
     fi
 
