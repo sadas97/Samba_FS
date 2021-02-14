@@ -2,6 +2,21 @@
 
 if [ "$EUID" == 0 ]; then
 
+    ConfigReset=1
+    while [ "${ConfigReset}" == 1 ]; do
+	if [ -z "${ConfigMessage}" ]; then
+	    ChoiceMessage=1
+	elif [ "${ConfigMessage}" ]; then
+	    echo "Must enter 1 or 2"
+	fi
+
+	read -p ">" ConfigChoice
+
+	if [ "${ConfigChoice}" == 1 ] || [ "${ConfigChoice}" == 2 ]; then
+	    ConfigReset=0
+	fi
+    done
+
     while [ -z "${}" ]; do
 	    if [ -z "${}" ]; then
 		    =1
