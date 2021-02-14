@@ -2,7 +2,14 @@
 
 if [ "$EUID" == 0 ]; then
 
-    
+    while [ -z "${}" ]; do
+	    if [ -z "${}" ]; then
+		    =1
+	    elif [ "${}" ]; then
+		    echo " must be entered"
+	    fi
+	    read -p "Enter :" smthg
+	done
 
 else
     echo "Script must be run as root"
