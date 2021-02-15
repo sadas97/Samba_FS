@@ -2,29 +2,50 @@
 
 if [ "$EUID" == 0 ]; then
 
-    ConfigReset=1
-    while [ "${ConfigReset}" == 1 ]; do
-	if [ -z "${ConfigMessage}" ]; then
-	    ChoiceMessage=1
-	elif [ "${ConfigMessage}" ]; then
+    printf "Do you want to\n1 - share an existing folder\n2 - make a new folder to share"
+    NewfolderReset=1
+    while [ "${NewfolderReset}" == 1 ]; do
+	if [ -z "${NewfolderMessage}" ]; then
+	    NewfolderMessage=1
+	elif [ "${NewfolderMessage}" ]; then
 	    echo "Must enter 1 or 2"
 	fi
 
-	read -p ">" ConfigChoice
+	read -p ">" NewfolderChoice
 
-	if [ "${ConfigChoice}" == 1 ] || [ "${ConfigChoice}" == 2 ]; then
-	    ConfigReset=0
+	if [ "${NewfolderChoice}" == 1 ] || [ "${NewfolderChoice}" == 2 ]; then
+	    NewfolderReset=0
 	fi
     done
 
-    while [ -z "${}" ]; do
-	    if [ -z "${}" ]; then
-		    =1
-	    elif [ "${}" ]; then
-		    echo " must be entered"
+
+    while [ -z "${ShareName}" ]; do
+	    if [ -z "${ShareName}" ]; then
+		ShareNameMess=1
+	    elif [ "${ShareNameMess}" ]; then
+		    echo "Share name must not be empty"
 	    fi
-	    read -p "Enter :" smthg
-	done
+	    read -p "Enter the name of the share:" ShareName
+    done
+
+    while [ -z "${FolderPath}" ]; do
+	    if [ -z "${FolderPath}" ]; then
+		FolderPathMess=1
+	    elif [ "${FolderPathMess}" ]; then
+		    echo "Folder path must not be empty"
+	    fi
+	    read -p "Enter the full path of the share folder:" FolderPath
+    done
+
+
+    if [ "${NewfolderChoice}" == 1 ]; then
+	mkdir -p ${FolderPath}
+    fi
+
+
+    printf "\n[${ShareName}]\n	path = ${FolderPath}\n	 read only = no" >> /etc/samba/smb.conf
+
+    smbcontrol all reload-config
 
 else
     echo "Script must be run as root"
