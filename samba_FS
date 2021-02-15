@@ -50,7 +50,6 @@ if [ "$EUID" == 0 ]; then
 	done
 
 	DEBIAN_FRONTEND=noninteractive apt -yq install acl attr samba samba-dsdb-modules samba-vfs-modules winbind libpam-winbind libnss-winbind libpam-krb5 krb5-config krb5-user dnsutils resolvconf
-	#apt install acl attr samba samba-dsdb-modules samba-vfs-modules winbind libpam-winbind libnss-winbind libpam-krb5 krb5-config krb5-user dnsutils resolvconf
 
 	nameservers="nameserver ${PDCIP}\nsearch ${KerberosRealm^^}\n"
 	sed -i "s/nameserver ${PDCIP}//g" /etc/resolvconf/resolv.conf.d/head
