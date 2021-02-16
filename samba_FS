@@ -61,6 +61,7 @@ if [ "$EUID" == 0 ]; then
 
 	printf "[libdefaults]\n default_realm = ${KerberosRealm^^}\ndns_lookup_realm = false\ndns_lookup_kdc = true" > /etc/krb5.conf
 
+	cp /etc/samba/smb.conf /etc/samba/smb.conf.bckp
 	cp ./.smb.conf /etc/samba/smb.conf
 	smbcontrol all reload-config
 
