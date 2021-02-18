@@ -18,3 +18,12 @@ cycle () {
     done
     printf "${Choice}"
 }
+
+ while [ -z "${ShareName}" ]; do
+	    if [ -z "${ShareName}" ]; then
+		ShareNameMess=1
+	    elif [ "${ShareNameMess}" ]; then
+		    echo "Share name must not be empty"
+	    fi
+	    read -p "Enter the name of the share:" ShareName
+    done
