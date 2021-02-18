@@ -6,6 +6,7 @@ if [ "$EUID" == 0 ]; then
     printf "Do you want to\n1 - make a new folder to share\n2 - share an existing folder\n"
     NewFolder=$(Choice_cycle)
 
+    
     ShareName=$(Input_cycle "Share name" "the share name")
     FolderPath=$(Input_cycle "Folder path" "the full path of the share folder")
 
@@ -15,8 +16,17 @@ if [ "$EUID" == 0 ]; then
 	printf "Newfolder is 1"
     fi
 
-    #printf "\n[${ShareName}]\n	path = ${FolderPath}\n	 read only = no" >> /etc/samba/smb.conf
-    #smbcontrol all reload-config
+    
+
+    printf "\n[${ShareName}]\n	path = ${FolderPath}\n	 inherit acls = yes" >> /etc/samba/share/${ShareName}
+    printf "\ninclude /etc/samba/share/${ShareName}" >> /etc/samba/smb.conf
+    smbcontrol all reload-config
+
+    setfacl -m group::--- ${FolderPath}
+    setfacl -m default:group::--- ${FolderPath}
+
+    setfacl -m group:"":--- ${FolderPath}
+
 
 else
     echo "Script must be run as root"

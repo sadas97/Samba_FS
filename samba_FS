@@ -1,53 +1,25 @@
 #!/bin/bash
 
 if [ "$EUID" == 0 ]; then
+    source .lib_file
 
     printf "Choose your configuration\n1 - Configure as a Standalone File Server\n"\
 "2 - Configure as Domain Member\n"
 
-    ConfigReset=1
-    while [ "${ConfigReset}" == 1 ]; do
-	if [ -z "${ConfigMessage}" ]; then
-	    ChoiceMessage=1
-	elif [ "${ConfigMessage}" ]; then
-	    echo "Must enter 1 or 2"
-	fi
-
-	read -p ">" ConfigChoice
-
-	if [ "${ConfigChoice}" == 1 ] || [ "${ConfigChoice}" == 2 ]; then
-	    ConfigReset=0
-	fi
-    done
-
+    ConfigChoice=$(Choice_cycle)
 
     if [ "${ConfigChoice}" == 1 ]; then
 	apt install samba
 
-#	printf "To share a home folder of a user you must create th user in samba using:"\
-#"smbpasswd -a username"
+	printf "To share a home folder of a user you must create th user in samba using:"\
+"smbpasswd -a username"
 
 #potentially choices for configuration (read only, browsable....)
 
     elif [ "${ConfigChoice}" == 2 ]; then
 
-	while [ -z "${KerberosRealm}" ]; do
-	    if [ -z "${KRBMessage}" ]; then
-		KRBMessage=1
-	    elif [ "${KRBMessage}" ]; then
-		echo "Kerberos realm must be entered"
-	    fi
-	    read -p "Kerberos realm must be entered:" KerberosRealm
-	done
-
-	while [ -z "${PDCIP}" ]; do
-	    if [ -z "${PDCIPMessage}" ]; then
-		PDCIPMessage=1
-	    elif [ "${PDCIPMessage}" ]; then
-		echo "IP of the primary DC must be entered"
-	    fi
-	    read -p "Enter the IP of the primary DC:" PDCIP
-	done
+	KerberosRealm=$(Input_cycle "Kerberos realm" "the Kerberos realm")
+	PDCIP=$(Input_cycle "IP of the primary DC" "the IP of the primary DC")
 
 	DEBIAN_FRONTEND=noninteractive apt -yq install acl attr samba samba-dsdb-modules samba-vfs-modules winbind libpam-winbind libnss-winbind libpam-krb5 krb5-config krb5-user dnsutils resolvconf
 
