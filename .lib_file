@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-cycle () {
+Choice_cycle () {
     Reset=1
     while [ "${Reset}" == 1 ]; do
 	if [ -z "${Message}" ]; then
@@ -19,11 +19,14 @@ cycle () {
     printf "${Choice}"
 }
 
- while [ -z "${ShareName}" ]; do
-	    if [ -z "${ShareName}" ]; then
-		ShareNameMess=1
-	    elif [ "${ShareNameMess}" ]; then
-		    echo "Share name must not be empty"
-	    fi
-	    read -p "Enter the name of the share:" ShareName
+Input_cycle () {
+    while [ -z "${Input}" ]; do
+	if [ -z "${InputMess}" ]; then
+	    InputMess=1
+	elif [ "${InputMess}" ]; then
+	    echo "${1} must not be empty"
+	fi
+	read -p "Enter ${2}:" Input
     done
+    printf "${Input}"
+}
