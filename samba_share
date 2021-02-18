@@ -9,7 +9,8 @@ if [ "$EUID" == 0 ]; then
     
     ShareName=$(Input_cycle "Share name" "the share name")
     FolderPath=$(Input_cycle "Folder path" "the full path of the share folder")
-
+    
+    DomainName=$(Input_cycle "NetBIOS domain name" "NetBios domain name (In example.com -> EXAMPLE)")
 
     if [ "${NewFolder}" == 1 ]; then
 	#mkdir -p ${FolderPath}
@@ -25,8 +26,8 @@ if [ "$EUID" == 0 ]; then
     setfacl -m group::--- ${FolderPath}
     setfacl -m default:group::--- ${FolderPath}
 
-    setfacl -m group:"":--- ${FolderPath}
-
+    setfacl -m group:"${DomainName}\Domain Admins":rwx ${FolderPath}
+    setfacl -m other::--- ${FolderPath}
 
 else
     echo "Script must be run as root"
