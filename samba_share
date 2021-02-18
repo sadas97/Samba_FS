@@ -1,22 +1,27 @@
 #!/bin/bash
 
 if [ "$EUID" == 0 ]; then
+    source .lib_file
 
-    printf "Do you want to\n1 - share an existing folder\n2 - make a new folder to share"
-    NewfolderReset=1
-    while [ "${NewfolderReset}" == 1 ]; do
-	if [ -z "${NewfolderMessage}" ]; then
-	    NewfolderMessage=1
-	elif [ "${NewfolderMessage}" ]; then
-	    echo "Must enter 1 or 2"
-	fi
+    printf "Do you want to\n1 - make a new folder to share\n2 - share an existing folder\n"
 
-	read -p ">" NewfolderChoice
+    NewFolder=$(cycle)
 
-	if [ "${NewfolderChoice}" == 1 ] || [ "${NewfolderChoice}" == 2 ]; then
-	    NewfolderReset=0
-	fi
-    done
+
+#    NewfolderReset=1
+#    while [ "${NewfolderReset}" == 1 ]; do
+#	if [ -z "${NewfolderMessage}" ]; then
+#	    NewfolderMessage=1
+#	elif [ "${NewfolderMessage}" ]; then
+#	    echo "Must enter 1 or 2"
+#	fi
+#
+#	read -p ">" NewfolderChoice
+#
+#	if [ "${NewfolderChoice}" == 1 ] || [ "${NewfolderChoice}" == 2 ]; then
+#	    NewfolderReset=0
+#	fi
+#    done
 
 
     while [ -z "${ShareName}" ]; do
@@ -38,14 +43,15 @@ if [ "$EUID" == 0 ]; then
     done
 
 
-    if [ "${NewfolderChoice}" == 1 ]; then
-	mkdir -p ${FolderPath}
+    if [ "${NewFolder}" == 1 ]; then
+	#mkdir -p ${FolderPath}
+	printf "Newfolder is 1"
     fi
 
 
-    printf "\n[${ShareName}]\n	path = ${FolderPath}\n	 read only = no" >> /etc/samba/smb.conf
+    #printf "\n[${ShareName}]\n	path = ${FolderPath}\n	 read only = no" >> /etc/samba/smb.conf
 
-    smbcontrol all reload-config
+    #smbcontrol all reload-config
 
 else
     echo "Script must be run as root"

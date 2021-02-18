@@ -1,16 +1,20 @@
 #!/bin/bash
 
-NewfolderReset=1
-    while [ "${NewfolderReset}" == 1 ]; do
-	if [ -z "${NewfolderMessage}" ]; then
-	    NewfolderMessage=1
-	elif [ "${NewfolderMessage}" ]; then
+
+cycle () {
+    Reset=1
+    while [ "${Reset}" == 1 ]; do
+	if [ -z "${Message}" ]; then
+	    Message=1
+	elif [ "${Message}" ]; then
 	    echo "Must enter 1 or 2"
 	fi
 
-	read -p ">" NewfolderChoice
+	read -p ">" Choice
 
-	if [ "${NewfolderChoice}" == 1 ] || [ "${NewfolderChoice}" == 2 ]; then
-	    NewfolderReset=0
-	  fi
-  done
+	if [ "${Choice}" == 1 ] || [ "${Choice}" == 2 ]; then
+	    Reset=0
+	fi
+    done
+    printf "${Choice}"
+}
