@@ -4,29 +4,20 @@
 Choice_cycle () {
     Reset=1
     while [ "${Reset}" == 1 ]; do
-	if [ -z "${Message}" ]; then
-	    Message=1
-	elif [ "${Message}" ]; then
-	    echo "Must enter 1 or 2"
-	fi
-
 	read -p ">" Choice
-
-	if [ "${Choice}" == 1 ] || [ "${Choice}" == 2 ]; then
-	    Reset=0
+	if [ "${Choice}" != "${1}" ] || [ "${Choice}" != "${2}" ]; then
+	    return 10
 	fi
     done
-    printf "${Choice}"
+
 }
 
 Input_cycle () {
     while [ -z "${Input}" ]; do
-	if [ -z "${InputMess}" ]; then
-	    InputMess=1
-	elif [ "${InputMess}" ]; then
+	read -p "Enter ${1}:" Input
+	if [ -z "${Input}" ]; then
 	    echo "${1} must not be empty"
 	fi
-	read -p "Enter ${2}:" Input
     done
-    printf "${Input}"
+    return "${Input}"
 }
