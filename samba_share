@@ -14,7 +14,6 @@ if [ "$EUID" == 0 ]; then
 	fi
     done
 
-    
 
     printf "Enter the full path to the folder you want to share\n"
     while [ -z "${FolderPath}" ]; do
@@ -36,12 +35,13 @@ if [ "$EUID" == 0 ]; then
     while [ -z "${DomainName}" ]; do
 	read -p ">" DomainName
 	if [ -z "${DomainName}" ]; then
-	    printf "The NetBIOS domain name must not be empty"
+	    printf "The NetBIOS domain name must not be empty\n"
 	fi
     done
 
 
     if [ "${NewFolder}" == 1 ]; then
+	echo "created new folder"
 	mkdir -p ${FolderPath}
     fi
 
@@ -78,17 +78,17 @@ if [ "$EUID" == 0 ]; then
     done
 
 
-    printf "${atributes}" >> /etc/samba/share/${ShareName}
+    printf "${atributes}" > /etc/samba/share/${ShareName}
     printf "\ninclude = /etc/samba/share/${ShareName}" >> /etc/samba/smb.conf
     smbcontrol all reload-config
  
-    #setfacl -m group::--- ${FolderPath}
-    #setfacl -m default:group::--- ${FolderPath}
+    setfacl -m group::--- ${FolderPath}
+    setfacl -m default:group::--- ${FolderPath}
 
-    #setfacl -m group:"${DomainName}\Domain Admins":rwx ${FolderPath}
-    #setfacl -m other::--- ${FolderPath}
-    #setfacl -m default:group:"${DomainName}\Domain Admins":rwx ${FolderPath}
-    #setfacl -m default:other::--- ${FolderPath}
+    setfacl -m group:"${DomainName}\Domain Admins":rwx ${FolderPath}
+    setfacl -m other::--- ${FolderPath}
+    setfacl -m default:group:"${DomainName}\Domain Admins":rwx ${FolderPath}
+    setfacl -m default:other::--- ${FolderPath}
     printf "The domain group Domain Admins has read, write and execute permissions\n"
 
     printf "Do you want to add permissions? (y/n)\n"
@@ -97,48 +97,116 @@ if [ "$EUID" == 0 ]; then
 	read -p ">" AddPerm
 	if [ "${AddPerm}" == y ] || [ "${AddPerm}" == n ]; then
 	    Reset=0
-	    printf "Addperm is y"
 	else
 	    printf "Must enter y or n\n"
 	fi
     done
 
-    exit 0
+    set -o xtrace
 
-    if [ "${AddPerm}" == y ]; then
+    while [ "${AddPerm}" == y ]; do
 	printf "Do you want to add permissions for a user or a group (u/g)"
 	Reset=1
 	while [ "${Reset}" == 1 ]; do
 	    read -p ">" AddUserOrGroup
-	    if [ "${AddUserOrGroup}" == u ]; then
+	    if [ "${AddUserOrGroup}" == u ] || [ "${AddUserOrGroup}" == g ]; then
 		Reset=0
-		FirstPar=user
-		printf "Enter the username of the domain user you want to give permissions to\n"
-		while [ -z "${PermissUser}" ]; do
-		    read -p ">" PermissUser
-		    if [ -z "${PermissUser}" ]; then
-			printf "The username must not be empty"
-		    fi
-		done
-	    elif [ "${AddUserOrGroup}" == g ]; then
-		Reset=0
-		FirstPar=group
-		printf "Enter the name of the domain group you want to give permissions to\n"
-		while [ -z "${PermissGroup}" ]; do
-		    read -p ">" PermissGroup
-		    if [ -z "${PermissGroup}" ]; then
-			printf "The group name must not be empty"
-		    fi
-		done
 	    else
 		printf "Must enter u or g\n"
 	    fi
 	done
-    fi
+
+	if [ "${AddUserOrGroup}" == u ]; then
+	    Reset=0
+	    FirstPar=user
+	    printf "Enter the username of the domain user you want to give permissions to\n"
+	    while [ -z "${SecondPar}" ]; do
+	        read -p ">" SecondPar
+		if [ -z "${SecondPar}" ]; then
+		    printf "The username must not be empty\n"
+		fi
+	    done
+
+
+	elif [ "${AddUserOrGroup}" == g ]; then
+
+	    Reset=0
+	    FirstPar=group
+	    printf "Enter the name of the domain group you want to give permissions to\n"
+	    while [ -z "${SecondPar}" ]; do
+		read -p ">" SecondPar
+		if [ -z "${SecondPar}" ]; then
+		    printf "The group name must not be empty\n"
+		fi
+	    done
+	fi
+
+	printf "\nDo you want ro add the read permission? (y/n)\n"
+	Reset=1
+	while [ "${Reset}" == 1 ]; do
+	    read -p ">" Read
+	    if [ "${Read}" == y ]; then 
+		Reset=0
+		Permission="r"
+	    elif [ "${Read}" == n ]; then
+		Reset=0
+		Permission="-"
+	    else
+		printf "Must enter y or n\n"
+	    fi
+	done
+
+	printf "\nDo you want ro add the write permission? (y/n)\n"
+	Reset=1
+	while [ "${Reset}" == 1 ]; do
+	    read -p ">" Write
+	    if [ "${Write}" == y ]; then 
+		Reset=0
+		Permission="${Permission}w"
+	    elif [ "${Write}" == n ]; then
+		Reset=0
+		Permission="${Permission}-"
+	    else
+		printf "Must enter y or n\n"
+	    fi
+	done
+
+	printf "\nDo you want ro add the execute permission? (y/n)\n"
+	Reset=1
+	while [ "${Reset}" == 1 ]; do
+	    read -p ">" Execute
+	    if [ "${Execute}" == y ]; then 
+		Reset=0
+		Permission="${Permission}x"
+	    elif [ "${Execute}" == n ]; then
+		Reset=0
+		Permission="${Permission}-"
+	    else
+		printf "Must enter y or n\n"
+	    fi
+	done
+	SecondPar="\\${SecondPar}"
+	setfacl -m "${FirstPar}":"${DomainName}${SecondPar}":"${Permission}" "${FolderPath}"
+
+	printf "Do you want to add permission? (y/n)"
+	Reset=1
+	while [ "${Reset}" == 1 ]; do
+	    read -p ">" ContinuePermission
+	    if [ "${ContinuePermission}" == y ]; then 
+		Reset=0
+		AddPerm=y
+	    elif [ "${ContinuePermission}" == n ]; then
+		Reset=0
+		AddPerm=n
+	    else
+		printf "Must enter y or n\n"
+	    fi
+	done
+    done
 
 
 else
     echo "Script must be run as root"
 fi
 
-exit 0
+exit 0 
