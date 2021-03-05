@@ -25,22 +25,21 @@ if [ "$EUID" == 0 ]; then
 
     elif [ "${ConfigChoice}" == 2 ]; then
 
-    	printf "Enter the kerberos realm:\n"
-    	while [ -z "${KerberosRealm}" ]; do
-		read -p ">" KerberosRealm
-	    	if [ -z "${KerberosRealm}" ]; then
-	    		printf "The kerberos realm must not be empty"
-		fi
-    	done
+	printf "Enter the kerberos realm\n"
+	while [ -z "${KerberosRealm}" ]; do
+	    read -p ">" KerberosRealm
+	    if [ -z "${KerberosRealm}" ]; then
+		printf "The kerberos realm must not be empty"
+	    fi
+	done
 	
-    	printf "Enter the IP of the primary DC:\n"
-    	while [ -z "${PDCIP}" ]; do
-		read -p ">" PDCIP
-	    	if [ -z "${PDCIP}" ]; then
-	    		printf "The IP if the primary DC must not be empty"
-		fi
-    	done
-	
+	printf "Enter the IP of the primary DC\n"
+	while [ -z "${PDCIP}" ]; do
+	    read -p ">" PDCIP
+	    if [ -z "${PDCIP}" ]; then
+		printf "The IP if the primary DC must not be empty"
+	    fi
+	done
 
 	DEBIAN_FRONTEND=noninteractive apt -yq install acl attr samba samba-dsdb-modules samba-vfs-modules winbind libpam-winbind libnss-winbind libpam-krb5 krb5-config krb5-user dnsutils resolvconf
 
