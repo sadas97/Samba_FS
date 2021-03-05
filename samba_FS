@@ -1,10 +1,13 @@
 #!/bin/bash
 
+#Checking if script is rum as root
 if [ "$EUID" == 0 ]; then
 
+#Choosing how to configure samba
     printf "Choose your configuration\n1 - Configure as a Standalone File Server\n"\
 "2 - Configure as Domain Member\n"
-
+#Asking user for input. If he inserts anything other than the choices presented he is asked
+#again
     Reset=1
     while [ "${Reset}" == 1 ]; do
 	read -p ">" ConfigChoice
@@ -15,16 +18,20 @@ if [ "$EUID" == 0 ]; then
 	fi
     done
 
+#If user chooses the first option
     if [ "${ConfigChoice}" == 1 ]; then
+#System installs samba and its dependencies
 	apt install samba
 
-	printf "To share a home folder of a user you must create th user in samba using:"\
+	printf "To share a home folder of a user you must create the user in samba using:"\
 "smbpasswd -a username"
 
-#potentially choices for configuration (read only, browsable....)
+    #home folder config choices (browsable, read only...)
 
+#If user chooses the second option
     elif [ "${ConfigChoice}" == 2 ]; then
 
+#Asking user to input the kerberos realm. If the input is empty user is asked again
 	printf "Enter the kerberos realm\n"
 	while [ -z "${KerberosRealm}" ]; do
 	    read -p ">" KerberosRealm
@@ -32,7 +39,8 @@ if [ "$EUID" == 0 ]; then
 		printf "The kerberos realm must not be empty"
 	    fi
 	done
-	
+
+#Asking user to input the IP of the main DC. If the input is empty user is asked again
 	printf "Enter the IP of the primary DC\n"
 	while [ -z "${PDCIP}" ]; do
 	    read -p ">" PDCIP
@@ -41,32 +49,44 @@ if [ "$EUID" == 0 ]; then
 	    fi
 	done
 
+#The system non-interactively installs samba its dependencies
 	DEBIAN_FRONTEND=noninteractive apt -yq install acl attr samba samba-dsdb-modules samba-vfs-modules winbind libpam-winbind libnss-winbind libpam-krb5 krb5-config krb5-user dnsutils resolvconf
 
+#The needed values are into nameservers variable
 	nameservers="nameserver ${PDCIP}\nsearch ${KerberosRealm^^}\n"
+#If the needed values are already in the file they are removed to avoid having two of the same
 	sed -i "s/nameserver ${PDCIP}//g" /etc/resolvconf/resolv.conf.d/head
 	sed -i "s/search ${KerberosRealm^^}//g" /etc/resolvconf/resolv.conf.d/head
+#Find other static nameserver records and save to to nameservers variable so they are not deleted
 	nameservers="${nameservers}$(cat /etc/resolvconf/resolv.conf.d/head | grep -w nameserver)\n"
+#Print the nameservers variable to resolvconf
 	printf "${nameservers}" > /etc/resolvconf/resolv.conf.d/head
-
 	systemctl restart resolvconf
 
+#Configure krb5
 	printf "[libdefaults]\n default_realm = ${KerberosRealm^^}\ndns_lookup_realm = false\ndns_lookup_kdc = true" > /etc/krb5.conf
 
+#Make a backup of the original smb.conf file
 	cp /etc/samba/smb.conf /etc/samba/smb.conf.bckp
+#Replace the smb.conf file with the scripts pre-written smb.conf
 	cp ./.smb.conf /etc/samba/smb.conf
+#Reload the smb configuration
 	smbcontrol all reload-config
 
+#Join the machine into the domain
 	net ads join -U administrator
 
+#Find the passwd line and the group line in nsswitch.conf file and add 'winbind' to them
 	passwdline=$(cat /etc/nsswitch.conf | grep -w passwd)
 	groupline=$(cat /etc/nsswitch.conf | grep -w group)
 	passwdlinenew="${passwdline} winbind"
 	grouplinenew="${groupline} winbind"
 
+#Replace the original lines with the lines containing winbind
 	sed -i "s/${passwdline}/${passwdlinenew}/" /etc/nsswitch.conf
 	sed -i "s/${groupline}/${grouplinenew}/" /etc/nsswitch.conf
 
+#Restart smbd, nmbd and winbind processes
 	systemctl restart smbd nmbd winbind
 
     fi
