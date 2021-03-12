@@ -91,6 +91,25 @@ if [ "$EUID" == 0 ]; then
 
     fi
 
+#Setup logging
+    printf "Set the logging options\n"
+    printf 'Enter the log file (leave empty to set default - /var/log/samba/%%m.log)\n'
+    #Aks for user input, if the input is empty it is set to pre-determined value
+    read -p ">" LogFile
+    if [ -z ${LogFile} ]; then
+	LogFile=/var/log/samba/%m.log
+    fi
+
+    printf "Enter the log level (leave empty to set default - 1)\n"
+    read -p ">" LogLevel
+    if [ -z ${LogLevel} ]; then
+	LogLevel=1
+    fi
+
+    #Find "[global]" and append the log file and log level parameters
+    sed -i "/\[global\]/a\	log file = $LogFile\n	log level = $LogLevel" /etc/samba/smb.conf
+
+
 else
 
     printf "This script must be run as root"
