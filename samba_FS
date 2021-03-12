@@ -106,8 +106,9 @@ if [ "$EUID" == 0 ]; then
 	LogLevel=1
     fi
 
-    #Find "[global]" and append the log file and log level parameters
-    sed -i "/\[global\]/a\	log file = $LogFile\n	log level = $LogLevel" /etc/samba/smb.conf
+    #Find "parameters" and replace their lines
+    sed -i "/log file =.*/c\	log file = $LogFile" /etc/samba/smb.conf
+    sed -i "/log level =.*/c\	log level = $LogLevel" /etc/samba/smb.conf
 
 
 else
