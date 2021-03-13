@@ -104,8 +104,8 @@ if [ "$EUID" == 0 ]; then
 	sed -i "s/${groupline}/${grouplinenew}/" /etc/nsswitch.conf
 
 #Find logging parameters and replace their lines
-	sed -i "/log file =.*/c\	log file = $LogFile" /etc/samba/smb.conf
-	sed -i "/log level =.*/c\	log level = $LogLevel" /etc/samba/smb.conf
+	sed -i "/log file =.*/c\    log file = $LogFile" /etc/samba/smb.conf
+	sed -i "/log level =.*/c\    log level = $LogLevel" /etc/samba/smb.conf
 
 #Restart smbd, nmbd and winbind processes
 	systemctl restart smbd nmbd winbind
