@@ -41,7 +41,7 @@ if [ "$EUID" == 0 ]; then
 	apt install samba
 
 	#Find logging parameters and replace their lines
-	sed -i "/log file =.*/c\	log file = $LogFile	log level = $LogLevel" /etc/samba/smb.conf
+	sed -i "/log file =.*/c\   log file = $LogFile\n   log level = $LogLevel" /etc/samba/smb.conf
 
 	printf "To access shares you must create users in samba using: smbpasswd -a 'username'"
 
