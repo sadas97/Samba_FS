@@ -18,13 +18,32 @@ if [ "$EUID" == 0 ]; then
 	fi
     done
 
+
+#Setup logging
+    printf "Set the logging options\n"
+    printf 'Enter the log file (leave empty to set default - /var/log/samba/%%m.log)\n'
+    #Aks for user input, if the input is empty it is set to pre-determined value
+    read -p ">" LogFile
+    if [ -z ${LogFile} ]; then
+	LogFile=/var/log/samba/%m.log
+    fi
+
+    printf "Enter the log level (leave empty to set default - 1)\n"
+    read -p ">" LogLevel
+    if [ -z ${LogLevel} ]; then
+	LogLevel=1
+    fi
+
+
 #If user chooses the first option
     if [ "${ConfigChoice}" == 1 ]; then
 #System installs samba and its dependencies
 	apt install samba
 
-	printf "To access shares you must create users in samba using: smbpasswd -a 'username'"
+	#Find logging parameters and replace their lines
+	sed -i "/log file =.*/c\	log file = $LogFile	log level = $LogLevel" /etc/samba/smb.conf
 
+	printf "To access shares you must create users in samba using: smbpasswd -a 'username'"
 
 #If user chooses the second option
     elif [ "${ConfigChoice}" == 2 ]; then
@@ -84,29 +103,14 @@ if [ "$EUID" == 0 ]; then
 	sed -i "s/${passwdline}/${passwdlinenew}/" /etc/nsswitch.conf
 	sed -i "s/${groupline}/${grouplinenew}/" /etc/nsswitch.conf
 
+#Find logging parameters and replace their lines
+	sed -i "/log file =.*/c\	log file = $LogFile" /etc/samba/smb.conf
+	sed -i "/log level =.*/c\	log level = $LogLevel" /etc/samba/smb.conf
+
 #Restart smbd, nmbd and winbind processes
 	systemctl restart smbd nmbd winbind
 
     fi
-
-#Setup logging
-    printf "Set the logging options\n"
-    printf 'Enter the log file (leave empty to set default - /var/log/samba/%%m.log)\n'
-    #Aks for user input, if the input is empty it is set to pre-determined value
-    read -p ">" LogFile
-    if [ -z ${LogFile} ]; then
-	LogFile=/var/log/samba/%m.log
-    fi
-
-    printf "Enter the log level (leave empty to set default - 1)\n"
-    read -p ">" LogLevel
-    if [ -z ${LogLevel} ]; then
-	LogLevel=1
-    fi
-
-    #Find "parameters" and replace their lines
-    sed -i "/log file =.*/c\	log file = $LogFile" /etc/samba/smb.conf
-    sed -i "/log level =.*/c\	log level = $LogLevel" /etc/samba/smb.conf
 
 
 else
