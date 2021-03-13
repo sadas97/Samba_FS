@@ -23,10 +23,8 @@ if [ "$EUID" == 0 ]; then
 #System installs samba and its dependencies
 	apt install samba
 
-	printf "To share a home folder of a user you must create the user in samba using:"\
-"smbpasswd -a username"
+	printf "To access shares you must create users in samba using: smbpasswd -a 'username'"
 
-    #home folder config choices (browsable, read only...)
 
 #If user chooses the second option
     elif [ "${ConfigChoice}" == 2 ]; then
@@ -36,7 +34,7 @@ if [ "$EUID" == 0 ]; then
 	while [ -z "${KerberosRealm}" ]; do
 	    read -p ">" KerberosRealm
 	    if [ -z "${KerberosRealm}" ]; then
-		printf "The kerberos realm must not be empty"
+		printf "The kerberos realm must not be empty\n"
 	    fi
 	done
 
@@ -45,7 +43,7 @@ if [ "$EUID" == 0 ]; then
 	while [ -z "${PDCIP}" ]; do
 	    read -p ">" PDCIP
 	    if [ -z "${PDCIP}" ]; then
-		printf "The IP if the primary DC must not be empty"
+		printf "The IP if the primary DC must not be empty\n"
 	    fi
 	done
 
@@ -64,7 +62,7 @@ if [ "$EUID" == 0 ]; then
 	systemctl restart resolvconf
 
 #Configure krb5
-	printf "[libdefaults]\n default_realm = ${KerberosRealm^^}\ndns_lookup_realm = false\ndns_lookup_kdc = true" > /etc/krb5.conf
+	printf "[libdefaults]\ndefault_realm = ${KerberosRealm^^}\ndns_lookup_realm = false\ndns_lookup_kdc = true" > /etc/krb5.conf
 
 #Make a backup of the original smb.conf file
 	cp /etc/samba/smb.conf /etc/samba/smb.conf.bckp
