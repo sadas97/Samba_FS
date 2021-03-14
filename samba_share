@@ -291,7 +291,8 @@ if [ "$EUID" == 0 ]; then
 	    SecondPar="\\${SecondPar}"
 	fi
 #Set the permission
-	setfacl -m "${FirstPar}":"${DomainName}${SecondPar}":"${Permission}" "${FolderPath}"
+	setfacl -R -m "${FirstPar}":"${DomainName}${SecondPar}":"${Permission}" "${FolderPath}"
+	setfacl -R -m default:"${FirstPar}":"${DomainName}${SecondPar}":"${Permission}" "${FolderPath}"
 
 #Ask if the user wants to add another permission
 	printf "Do you want to add permissions for another group or a user? (y/n)\n"
