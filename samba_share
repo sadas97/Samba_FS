@@ -60,7 +60,8 @@ if [ "$EUID" == 0 ]; then
 
     atributes="[${ShareName}]\n	path = ${FolderPath}\n	inherit acls = yes"
 
-    printf "\nDo you want the folder to be read only? (y/n)\n"
+    printf "\nDo you want the folder to be read only? If you choose yes not even users with\n"\
+"write permission will be able to write! (y/n) \n"
     Reset=1
     while [ "${Reset}" == 1 ]; do
 	read -p ">" ReadOnly
@@ -85,6 +86,22 @@ if [ "$EUID" == 0 ]; then
 	elif [ "${Browsable}" == n ]; then
 	    Reset=0
 	    atributes="${atributes}\n	browsable = no"
+	else
+	    printf "Must enter y or n\n"
+	fi
+    done
+
+    printf "\nDo you want to allow guest access? Guest users will only have read and execute\n"\
+"permissions (y/n)\n"
+    Reset=1
+    while [ "${Reset}" == 1 ]; do
+	read -p ">" Guest
+	if [ "${Guest}" == y ]; then 
+	    Reset=0
+	    atributes="${atributes}\n	guest ok = yes"
+	elif [ "${Guest}" == n ]; then
+	    Reset=0
+	    atributes="${atributes}\n	guest ok = no"
 	else
 	    printf "Must enter y or n\n"
 	fi
@@ -228,4 +245,4 @@ else
     echo "Script must be run as root"
 fi
 
-exit 0 
+exit 0
