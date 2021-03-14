@@ -31,7 +31,7 @@ if [ "$EUID" == 0 ]; then
 	fi
     done
 
-    printf "Is your samba\n1 - a standalone server\n2 - a part of a domain"
+    printf "Is your samba\n1 - a standalone server\n2 - a part of a domain\n"
     Reset=1
     while [ "${Reset}" == 1 ]; do
 	read -p ">" SambaSetup
@@ -105,6 +105,7 @@ if [ "$EUID" == 0 ]; then
 	setfacl -m default:other::--- ${FolderPath}
 	printf "The domain group Domain Admins has read, write and execute permissions\n"
     fi
+
     printf "Do you want to add permissions? (y/n)\n"
     Reset=1
     while [ "${Reset}" == 1 ]; do
@@ -120,7 +121,7 @@ if [ "$EUID" == 0 ]; then
 
     while [ "${AddPerm}" == y ]; do
 	unset SecondPar
-	printf "Do you want to add permissions for a user or a group (u/g)"
+	printf "Do you want to add permissions for a user or a group (u/g)\n"
 	Reset=1
 	while [ "${Reset}" == 1 ]; do
 	    read -p ">" AddUserOrGroup
@@ -206,7 +207,7 @@ if [ "$EUID" == 0 ]; then
 	fi
 	setfacl -m "${FirstPar}":"${DomainName}${SecondPar}":"${Permission}" "${FolderPath}"
 
-	printf "Do you want to add permissions for another group or a user? (y/n)"
+	printf "Do you want to add permissions for another group or a user? (y/n)\n"
 	Reset=1
 	while [ "${Reset}" == 1 ]; do
 	    read -p ">" ContinuePermission
