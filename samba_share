@@ -152,26 +152,48 @@ if [ "$EUID" == 0 ]; then
 	if [ "${AddUserOrGroup}" == u ]; then
 	    Reset=0
 	    FirstPar=user
-	    printf "Enter the username of the domain user you want to give permissions to\n"
+	    printf "Enter the username of the user you want to give permissions to\n"
 	    while [ -z "${SecondPar}" ]; do
 	        read -p ">" SecondPar
 		if [ -z "${SecondPar}" ]; then
 		    printf "The username must not be empty\n"
 		fi
 	    done
-	    
+
+	    if [ "${SambaSetup}" == 2 ]; then
+		existingValid=$(cat /etc/samba/share/${ShareName} | grep -w "valid users")
+		if [ -z "${existingValid}" ]; then
+		    printf "\n	valid users = ${SecondPar}" >> /etc/samba/share/${ShareName}
+		else
+		    sed -i "s/${existingValid}//" /etc/samba/share/${ShareName}
+		    printf "${existingValid} ${SecondPar}" >> /etc/samba/share/${ShareName}
+		fi
+		unset existingValid
+	    fi
 
 	elif [ "${AddUserOrGroup}" == g ]; then
 
 	    Reset=0
 	    FirstPar=group
-	    printf "Enter the name of the domain group you want to give permissions to\n"
+	    printf "Enter the name of the group you want to give permissions to\n"
 	    while [ -z "${SecondPar}" ]; do
 		read -p ">" SecondPar
 		if [ -z "${SecondPar}" ]; then
 		    printf "The group name must not be empty\n"
 		fi
 	    done
+
+	    if [ "${SambaSetup}" == 2 ]; then
+		existingValid=$(cat /etc/samba/share/${ShareName} | grep -w "valid users")
+		if [ -z "${existingValid}" ]; then
+		    printf "\n	valid users = @${SecondPar}" >> /etc/samba/share/${ShareName}
+		else
+		    sed -i "s/${existingValid}//" /etc/samba/share/${ShareName}
+		    printf "${existingValid} @${SecondPar}" >> /etc/samba/share/${ShareName}
+		fi
+		unset existingValid
+	    fi
+
 	fi
 
 	printf "\nDo you want the ${FirstPar} to have the read permission? (y/n)\n"
