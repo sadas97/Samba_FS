@@ -3,18 +3,31 @@
 if [ "$EUID" == 0 ]; then
     source .lib_file
 
-    printf "Do you want to\n1 - make a new folder to share\n2 - share an existing folder\n"
+    printf "Do you want to\n1 - create a new share\n2 - only add permissions\n"
     Reset=1
     while [ "${Reset}" == 1 ]; do
-	read -p ">" NewFolder
-	if [ "${NewFolder}" == 1 ] || [ "${NewFolder}" == 2 ]; then
+	read -p ">" ShareOrPermiss
+	if [ "${ShareOrPermiss}" == 1 ] || [ "${ShareOrPermiss}" == 2 ]; then
 	    Reset=0
 	else
 	    printf "Must enter 1 or 2\n"
 	fi
     done
 
+    if [ "${ShareOrPermiss}" == 1 ]; then
 
+	printf "Do you want to\n1 - make a new folder to share\n2 - share an existing folder\n"
+	Reset=1
+	while [ "${Reset}" == 1 ]; do
+	    read -p ">" NewFolder
+	    if [ "${NewFolder}" == 1 ] || [ "${NewFolder}" == 2 ]; then
+		Reset=0
+	    else
+		printf "Must enter 1 or 2\n"
+	    fi
+	done
+    fi
+	
     printf "Enter the full path to the folder you want to share\n"
     while [ -z "${FolderPath}" ]; do
 	read -p ">" FolderPath
@@ -58,59 +71,61 @@ if [ "$EUID" == 0 ]; then
 	mkdir -p ${FolderPath}
     fi
 
-    atributes="[${ShareName}]\n	path = ${FolderPath}\n	inherit acls = yes"
+    if [ "${ShareOrPermiss}" == 1 ]; then
+	atributes="[${ShareName}]\n	path = ${FolderPath}\n	inherit acls = yes"
 
-    printf "\nDo you want the folder to be read only? If you choose yes not even users with\n"\
+	printf "\nDo you want the folder to be read only? If you choose yes not even users with\n"\
 "write permission will be able to write! (y/n) \n"
-    Reset=1
-    while [ "${Reset}" == 1 ]; do
-	read -p ">" ReadOnly
-	if [ "${ReadOnly}" == y ]; then 
-	    Reset=0
-	    atributes="${atributes}\n	read only = yes"
-	elif [ "${ReadOnly}" == n ]; then
-	    Reset=0
-	    atributes="${atributes}\n	read only = no"
-	else
+	Reset=1
+	while [ "${Reset}" == 1 ]; do
+	    read -p ">" ReadOnly
+	    if [ "${ReadOnly}" == y ]; then 
+		Reset=0
+		atributes="${atributes}\n	read only = yes"
+	    elif [ "${ReadOnly}" == n ]; then
+		Reset=0
+		atributes="${atributes}\n	read only = no"
+	    else
 	    printf "Must enter y or n\n"
-	fi
-    done
+	    fi
+	done
 
-    printf "\nDo you want the folder to be browsable? (y/n)\n"
-    Reset=1
-    while [ "${Reset}" == 1 ]; do
-	read -p ">" Browsable
-	if [ "${Browsable}" == y ]; then 
-	    Reset=0
-	    atributes="${atributes}\n	browsable = yes"
-	elif [ "${Browsable}" == n ]; then
-	    Reset=0
-	    atributes="${atributes}\n	browsable = no"
-	else
-	    printf "Must enter y or n\n"
-	fi
-    done
+	printf "\nDo you want the folder to be browsable? (y/n)\n"
+	Reset=1
+	while [ "${Reset}" == 1 ]; do
+	    read -p ">" Browsable
+	    if [ "${Browsable}" == y ]; then 
+		Reset=0
+		atributes="${atributes}\n	browsable = yes"
+	    elif [ "${Browsable}" == n ]; then
+		Reset=0
+		atributes="${atributes}\n	browsable = no"
+	    else
+		printf "Must enter y or n\n"
+	    fi
+	done
 
-    printf "\nDo you want to allow guest access? Guest users will only have read and execute\n"\
+	printf "\nDo you want to allow guest access? Guest users will only have read and execute\n"\
 "permissions (y/n)\n"
-    Reset=1
-    while [ "${Reset}" == 1 ]; do
-	read -p ">" Guest
-	if [ "${Guest}" == y ]; then 
-	    Reset=0
-	    atributes="${atributes}\n	guest ok = yes"
-	elif [ "${Guest}" == n ]; then
-	    Reset=0
-	    atributes="${atributes}\n	guest ok = no"
-	else
-	    printf "Must enter y or n\n"
-	fi
-    done
+	Reset=1
+	while [ "${Reset}" == 1 ]; do
+	    read -p ">" Guest
+	    if [ "${Guest}" == y ]; then 
+		Reset=0
+ 		atributes="${atributes}\n	guest ok = yes"
+	    elif [ "${Guest}" == n ]; then
+		Reset=0
+		atributes="${atributes}\n	guest ok = no"
+	    else
+		printf "Must enter y or n\n"
+	    fi
+	done
 
-    mkdir -p /etc/samba/share/
-    printf "${atributes}" > /etc/samba/share/${ShareName}
-    printf "\ninclude = /etc/samba/share/${ShareName}" >> /etc/samba/smb.conf
-    smbcontrol all reload-config
+	mkdir -p /etc/samba/share/
+	printf "${atributes}" > /etc/samba/share/${ShareName}
+	printf "\ninclude = /etc/samba/share/${ShareName}" >> /etc/samba/smb.conf
+	smbcontrol all reload-config
+    fi
 
     if [ "${SambaSetup}" == 2 ]; then
 	setfacl -m group::--- ${FolderPath}
@@ -123,17 +138,20 @@ if [ "$EUID" == 0 ]; then
 	printf "The domain group Domain Admins has read, write and execute permissions\n"
     fi
 
-    printf "Do you want to add permissions? (y/n)\n"
-    Reset=1
-    while [ "${Reset}" == 1 ]; do
-	read -p ">" AddPerm
-	if [ "${AddPerm}" == y ] || [ "${AddPerm}" == n ]; then
-	    Reset=0
-	else
-	    printf "Must enter y or n\n"
-	fi
-    done
-
+    if [ "${ShareOrPermiss}" == 1 ]; then
+	printf "Do you want to add permissions? (y/n)\n"
+	Reset=1
+	while [ "${Reset}" == 1 ]; do
+	    read -p ">" AddPerm
+	    if [ "${AddPerm}" == y ] || [ "${AddPerm}" == n ]; then
+		Reset=0
+	    else
+		printf "Must enter y or n\n"
+	    fi
+	done
+    else
+	AddPerm=y
+    fi
 
 
     while [ "${AddPerm}" == y ]; do
@@ -154,7 +172,7 @@ if [ "$EUID" == 0 ]; then
 	    FirstPar=user
 	    printf "Enter the username of the user you want to give permissions to\n"
 	    while [ -z "${SecondPar}" ]; do
-	        read -p ">" SecondPar
+		read -p ">" SecondPar
 		if [ -z "${SecondPar}" ]; then
 		    printf "The username must not be empty\n"
 		fi
@@ -261,7 +279,6 @@ if [ "$EUID" == 0 ]; then
 	    fi
 	done
     done
-
 
 else
     echo "Script must be run as root"
