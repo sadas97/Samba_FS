@@ -3,6 +3,7 @@
 if [ "$EUID" == 0 ]; then
     source .lib_file
 
+#Choose if the user wants to create a new share or only add permissins
     printf "Do you want to\n1 - create a new share\n2 - only add permissions\n"
     Reset=1
     while [ "${Reset}" == 1 ]; do
@@ -14,6 +15,8 @@ if [ "$EUID" == 0 ]; then
 	fi
     done
 
+#If the user wants to create a share they are asked if they want to create a folder to share or 
+#to share an existing one
     if [ "${ShareOrPermiss}" == 1 ]; then
 
 	printf "Do you want to\n1 - make a new folder to share\n2 - share an existing folder\n"
@@ -27,7 +30,10 @@ if [ "$EUID" == 0 ]; then
 	    fi
 	done
     fi
-	
+
+#Aksing for variables needef both for creating a share and adding permissins
+
+    #Full path to the share folder
     printf "Enter the full path to the folder you want to share\n"
     while [ -z "${FolderPath}" ]; do
 	read -p ">" FolderPath
@@ -36,6 +42,7 @@ if [ "$EUID" == 0 ]; then
 	fi
     done
 
+    #Name of the share
     printf "Enter the share name\n"
     while [ -z "${ShareName}" ]; do
 	read -p ">" ShareName
@@ -44,6 +51,7 @@ if [ "$EUID" == 0 ]; then
 	fi
     done
 
+#Asking if the share is on a standalone samba or a domain member
     printf "Is your samba\n1 - a standalone server\n2 - a part of a domain\n"
     Reset=1
     while [ "${Reset}" == 1 ]; do
@@ -52,7 +60,7 @@ if [ "$EUID" == 0 ]; then
 	    Reset=0
 	elif [ "${SambaSetup}" == 2 ]; then
 	    Reset=0
-
+	    #If the samba is a domain member ask for NetBIOS domain name
 	    printf "Enter the NetBIOS domain name [example.com -> EXAMPLE]\n"
 	    while [ -z "${DomainName}" ]; do
 		read -p ">" DomainName
@@ -66,14 +74,16 @@ if [ "$EUID" == 0 ]; then
 	fi
     done
 
-
+#If the user chose to create a new folder to share, create that folder
     if [ "${NewFolder}" == 1 ]; then
 	mkdir -p ${FolderPath}
     fi
 
+#If a new share is being created, ask for its parameters
     if [ "${ShareOrPermiss}" == 1 ]; then
 	atributes="[${ShareName}]\n	path = ${FolderPath}\n	inherit acls = yes"
 
+	#Should the folder be read only?
 	printf "\nDo you want the folder to be read only? If you choose yes not even users with\n"\
 "write permission will be able to write! (y/n) \n"
 	Reset=1
@@ -90,6 +100,7 @@ if [ "$EUID" == 0 ]; then
 	    fi
 	done
 
+	#Should the folder be browsable?
 	printf "\nDo you want the folder to be browsable? (y/n)\n"
 	Reset=1
 	while [ "${Reset}" == 1 ]; do
@@ -105,6 +116,7 @@ if [ "$EUID" == 0 ]; then
 	    fi
 	done
 
+	#Should the share allow guest users?
 	printf "\nDo you want to allow guest access? Guest users will only have read and execute\n"\
 "permissions (y/n)\n"
 	Reset=1
@@ -121,12 +133,17 @@ if [ "$EUID" == 0 ]; then
 	    fi
 	done
 
-	mkdir -p /etc/samba/share/
+#If it doesn't exist, create a folder for the share files
+	if [ ! -d /etc/samba/share/ ]; then
+	    mkdir -p /etc/samba/share/
+	fi
+#Create a config file of the share, include it in smb.conf and reload the smb configuration
 	printf "${atributes}" > /etc/samba/share/${ShareName}
 	printf "\ninclude = /etc/samba/share/${ShareName}" >> /etc/samba/smb.conf
 	smbcontrol all reload-config
     fi
 
+#If samba is a domain member setup default permissions
     if [ "${SambaSetup}" == 2 ]; then
 	setfacl -m group::--- ${FolderPath}
 	setfacl -m default:group::--- ${FolderPath}
@@ -138,6 +155,7 @@ if [ "$EUID" == 0 ]; then
 	printf "The domain group Domain Admins has read, write and execute permissions\n"
     fi
 
+#Ask if the user wants to add permissions (Only if they're creating a new share)
     if [ "${ShareOrPermiss}" == 1 ]; then
 	printf "Do you want to add permissions? (y/n)\n"
 	Reset=1
@@ -155,7 +173,9 @@ if [ "$EUID" == 0 ]; then
 
 
     while [ "${AddPerm}" == y ]; do
+	#Unset SecondPar if it is still set
 	unset SecondPar
+#Choose if the permission is for a user of a group
 	printf "Do you want to add permissions for a user or a group (u/g)\n"
 	Reset=1
 	while [ "${Reset}" == 1 ]; do
@@ -167,6 +187,7 @@ if [ "$EUID" == 0 ]; then
 	    fi
 	done
 
+#If for a user, set FirstPar to 'user' and ask for a username
 	if [ "${AddUserOrGroup}" == u ]; then
 	    Reset=0
 	    FirstPar=user
@@ -177,15 +198,19 @@ if [ "$EUID" == 0 ]; then
 		    printf "The username must not be empty\n"
 		fi
 	    done
-
-	    if [ "${SambaSetup}" == 2 ]; then
+#If samba is a standalone server add the username to the valid users parameter
+	    if [ "${SambaSetup}" == 1 ]; then
+		#find valid users parameter in the config file of the share
 		existingValid=$(cat /etc/samba/share/${ShareName} | grep -w "valid users")
+		#If it doens't exist create it and add the username
 		if [ -z "${existingValid}" ]; then
 		    printf "\n	valid users = ${SecondPar}" >> /etc/samba/share/${ShareName}
 		else
+		#If it exist copy the line and append the username
 		    sed -i "s/${existingValid}//" /etc/samba/share/${ShareName}
 		    printf "${existingValid} ${SecondPar}" >> /etc/samba/share/${ShareName}
 		fi
+		#Unset the existingValid variable so that it doesn't intervene if the user chooses to add another permission
 		unset existingValid
 	    fi
 
@@ -200,8 +225,8 @@ if [ "$EUID" == 0 ]; then
 		    printf "The group name must not be empty\n"
 		fi
 	    done
-
-	    if [ "${SambaSetup}" == 2 ]; then
+#If samba is a standalone server add the groupname to the valid users parameter
+	    if [ "${SambaSetup}" == 1 ]; then
 		existingValid=$(cat /etc/samba/share/${ShareName} | grep -w "valid users")
 		if [ -z "${existingValid}" ]; then
 		    printf "\n	valid users = @${SecondPar}" >> /etc/samba/share/${ShareName}
@@ -213,7 +238,8 @@ if [ "$EUID" == 0 ]; then
 	    fi
 
 	fi
-
+#Ask which permissions should the user/group have
+	#Read permissions
 	printf "\nDo you want the ${FirstPar} to have the read permission? (y/n)\n"
 	Reset=1
 	while [ "${Reset}" == 1 ]; do
@@ -228,7 +254,7 @@ if [ "$EUID" == 0 ]; then
 		printf "Must enter y or n\n"
 	    fi
 	done
-
+	#Write permissions
 	printf "\nDo you want the ${FirstPar} to have the the write permission? (y/n)\n"
 	Reset=1
 	while [ "${Reset}" == 1 ]; do
@@ -244,6 +270,7 @@ if [ "$EUID" == 0 ]; then
 	    fi
 	done
 
+	#Execute permissions
 	printf "\nDo you want the ${FirstPar} to have the the execute permission? (y/n)\n"
 	Reset=1
 	while [ "${Reset}" == 1 ]; do
@@ -259,11 +286,14 @@ if [ "$EUID" == 0 ]; then
 	    fi
 	done
 
+#If the samba is a domain member add a backslash to SecondPar which separates the domain name from the user/group name
 	if [ "${SambaSetup}" == 2 ]; then
 	    SecondPar="\\${SecondPar}"
 	fi
+#Set the permission
 	setfacl -m "${FirstPar}":"${DomainName}${SecondPar}":"${Permission}" "${FolderPath}"
 
+#Ask if the user wants to add another permission
 	printf "Do you want to add permissions for another group or a user? (y/n)\n"
 	Reset=1
 	while [ "${Reset}" == 1 ]; do

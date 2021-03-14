@@ -44,7 +44,7 @@ if [ "$EUID" == 0 ]; then
 	sed -i "/log file =.*/c\   log file = $LogFile\n   log level = $LogLevel" /etc/samba/smb.conf
 
 	printf "To access shares you must add users to samba using: smbpasswd -a 'username'\n"
-
+	printf "Run samba_share script to create a new share"
 #If user chooses the second option
     elif [ "${ConfigChoice}" == 2 ]; then
 
@@ -111,7 +111,6 @@ if [ "$EUID" == 0 ]; then
 	systemctl restart smbd nmbd winbind
 
     fi
-
 
 else
 
