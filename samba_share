@@ -99,22 +99,6 @@ if [ "$EUID" == 0 ]; then
 	    fi
 	done
 
-	#Should the folder be browsable?
-	printf "\nDo you want the folder to be browsable? (y/n)\n"
-	Reset=1
-	while [ "${Reset}" == 1 ]; do
-	    read -p ">" Browsable
-	    if [ "${Browsable}" == y ]; then 
-		Reset=0
-		atributes="${atributes}\n	browsable = yes"
-	    elif [ "${Browsable}" == n ]; then
-		Reset=0
-		atributes="${atributes}\n	browsable = no"
-	    else
-		printf "Must enter y or n\n"
-	    fi
-	done
-
 	#Should the share allow guest users?
 	printf "\nDo you want to allow guest access? Guest users will only have read and execute\n"\
 "permissions (y/n)\n"
