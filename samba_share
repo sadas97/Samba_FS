@@ -1,7 +1,6 @@
 #!/bin/bash
 
 if [ "$EUID" == 0 ]; then
-    source .lib_file
 
 #Choose if the user wants to create a new share or only add permissins
     printf "Do you want to\n1 - create a new share\n2 - only add permissions\n"
