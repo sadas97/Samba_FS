@@ -80,7 +80,7 @@ if [ "$EUID" == 0 ]; then
 
 #If a new share is being created, ask for its parameters
     if [ "${ShareOrPermiss}" == 1 ]; then
-	atributes="[${ShareName}]\n	path = ${FolderPath}\n	inherit acls = yes"
+	attributes="[${ShareName}]\n	path = ${FolderPath}\n	inherit acls = yes"
 
 	#Should the folder be read only?
 	printf "\nDo you want the folder to be read only? If you choose yes not even users with\n"\
@@ -90,10 +90,10 @@ if [ "$EUID" == 0 ]; then
 	    read -p ">" ReadOnly
 	    if [ "${ReadOnly}" == y ]; then 
 		Reset=0
-		atributes="${atributes}\n	read only = yes"
+		attributes="${attributes}\n	read only = yes"
 	    elif [ "${ReadOnly}" == n ]; then
 		Reset=0
-		atributes="${atributes}\n	read only = no"
+		attributes="${attributes}\n	read only = no"
 	    else
 	    printf "Must enter y or n\n"
 	    fi
@@ -107,10 +107,10 @@ if [ "$EUID" == 0 ]; then
 	    read -p ">" Guest
 	    if [ "${Guest}" == y ]; then 
 		Reset=0
- 		atributes="${atributes}\n	guest ok = yes"
+ 		attributes="${attributes}\n	guest ok = yes"
 	    elif [ "${Guest}" == n ]; then
 		Reset=0
-		atributes="${atributes}\n	guest ok = no"
+		attributes="${attributes}\n	guest ok = no"
 	    else
 		printf "Must enter y or n\n"
 	    fi
@@ -121,7 +121,7 @@ if [ "$EUID" == 0 ]; then
 	    mkdir -p /etc/samba/share/
 	fi
 #Create a config file of the share, include it in smb.conf and reload the smb configuration
-	printf "${atributes}" > /etc/samba/share/${ShareName}
+	printf "${attributes}" > /etc/samba/share/${ShareName}
 	printf "\ninclude = /etc/samba/share/${ShareName}" >> /etc/samba/smb.conf
 	smbcontrol all reload-config
     fi
