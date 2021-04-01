@@ -128,13 +128,13 @@ if [ "$EUID" == 0 ]; then
 
 #If samba is a domain member setup default permissions
     if [ "${SambaSetup}" == 2 ]; then
-	setfacl -m group::--- ${FolderPath}
-	setfacl -m default:group::--- ${FolderPath}
+	setfacl -R -m group::--- ${FolderPath}
+	setfacl -R -m default:group::--- ${FolderPath}
 
-	setfacl -m group:"${DomainName}\Domain Admins":rwx ${FolderPath}
-	setfacl -m other::--- ${FolderPath}
-	setfacl -m default:group:"${DomainName}\Domain Admins":rwx ${FolderPath}
-	setfacl -m default:other::--- ${FolderPath}
+	setfacl -R -m group:"${DomainName}\Domain Admins":rwx ${FolderPath}
+	setfacl -R -m other::--- ${FolderPath}
+	setfacl -R -m default:group:"${DomainName}\Domain Admins":rwx ${FolderPath}
+	setfacl -R -m default:other::--- ${FolderPath}
 	printf "The domain group Domain Admins has read, write and execute permissions\n"
     fi
 
