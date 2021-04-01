@@ -156,8 +156,6 @@ if [ "$EUID" == 0 ]; then
 
 
     while [ "${AddPerm}" == y ]; do
-	#Unset SecondPar if it is still set
-	unset SecondPar
 #Choose if the permission is for a user of a group
 	printf "Do you want to add permissions for a user or a group (u/g)\n"
 	Reset=1
@@ -292,6 +290,8 @@ if [ "$EUID" == 0 ]; then
 		printf "Must enter y or n\n"
 	    fi
 	done
+	#Unset SecondPar so it doesn't influence the next run
+	unset SecondPar
     done
 
 else
