@@ -77,7 +77,7 @@ if [ "$EUID" == 0 ]; then
 	    fi
 	done
 
-#The system non-interactively installs samba its dependencies
+#Non-interactively install samba and its dependencies
 	DEBIAN_FRONTEND=noninteractive apt -yq install acl attr samba samba-dsdb-modules samba-vfs-modules winbind libpam-winbind libnss-winbind libpam-krb5 krb5-config krb5-user dnsutils resolvconf
 
 #Configure resolvconf
@@ -96,7 +96,10 @@ if [ "$EUID" == 0 ]; then
 	cp -f /etc/samba/smb.conf /etc/sambaBckp/smb.conf.bckp
 #Replace the smb.conf file with the scripts pre-written smb.conf
 	cp -f $(dirname $0)/.smb.conf /etc/samba/smb.conf
-#Reload the smb configuration
+
+	sed -i "s/KrbRealm/${KerberosRealm^^}/g" /etc/samba/smb.conf
+	sed -i "s/NetBIOSdomain/${DomainName^^}/g" /etc/samba/smb.conf
+#Reload the samba configuration
 	smbcontrol all reload-config
 
 #Join the machine into the domain
