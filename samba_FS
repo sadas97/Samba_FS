@@ -44,7 +44,7 @@ if [ "$EUID" == 0 ]; then
 	sed -i "/log file =.*/c\   log file = $LogFile\n   log level = $LogLevel" /etc/samba/smb.conf
 
 	printf "To access shares you must add users to samba using: smbpasswd -a 'username'\n"
-	printf "Run samba_share script to create a new share"
+	printf "Run samba_share script to create a new share\n"
 #If user chooses the second option
     elif [ "${ConfigChoice}" == 2 ]; then
 
@@ -53,7 +53,7 @@ if [ "$EUID" == 0 ]; then
 	while [ -z "${KerberosRealm}" ]; do
 	    read -p ">" KerberosRealm
 	    if [ -z "${KerberosRealm}" ]; then
-		printf "The kerberos realm must not be empty\n"
+		printf "\nThe kerberos realm must not be empty\n"
 	    fi
 	done
 
@@ -62,7 +62,7 @@ if [ "$EUID" == 0 ]; then
 	while [ -z "${PDCIP}" ]; do
 	    read -p ">" PDCIP
 	    if [ -z "${PDCIP}" ]; then
-		printf "The IP if the primary DC must not be empty\n"
+		printf "\nThe IP if the primary DC must not be empty\n"
 	    fi
 	done
 
@@ -85,9 +85,9 @@ if [ "$EUID" == 0 ]; then
 
 #Make a backup of the original smb.conf file
 	mkdir -p /etc/sambaBckp/
-	cp /etc/samba/smb.conf /etc/sambaBckp/smb.conf.bckp
+	cp -f /etc/samba/smb.conf /etc/sambaBckp/smb.conf.bckp
 #Replace the smb.conf file with the scripts pre-written smb.conf
-	cp $(dirname $0)/.smb.conf /etc/samba/smb.conf
+	cp -f $(dirname $0)/.smb.conf /etc/samba/smb.conf
 #Reload the smb configuration
 	smbcontrol all reload-config
 
