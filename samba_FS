@@ -69,14 +69,11 @@ if [ "$EUID" == 0 ]; then
 #The system non-interactively installs samba its dependencies
 	DEBIAN_FRONTEND=noninteractive apt -yq install acl attr samba samba-dsdb-modules samba-vfs-modules winbind libpam-winbind libnss-winbind libpam-krb5 krb5-config krb5-user dnsutils resolvconf
 
-#The needed values are into nameservers variable
+#Configure resolvconf
 	nameservers="nameserver ${PDCIP}\nsearch ${KerberosRealm^^}\n"
-#If the needed values are already in the file they are removed to avoid having two of the same
 	sed -i "s/nameserver ${PDCIP}//g" /etc/resolvconf/resolv.conf.d/head
 	sed -i "s/search ${KerberosRealm^^}//g" /etc/resolvconf/resolv.conf.d/head
-#Find other static nameserver records and save to to nameservers variable so they are not deleted
 	nameservers="${nameservers}$(cat /etc/resolvconf/resolv.conf.d/head | grep -w nameserver)\n"
-#Print the nameservers variable to resolvconf
 	printf "${nameservers}" > /etc/resolvconf/resolv.conf.d/head
 	systemctl restart resolvconf
 
