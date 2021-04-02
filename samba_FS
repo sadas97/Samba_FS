@@ -14,7 +14,7 @@ if [ "$EUID" == 0 ]; then
 	if [ "${ConfigChoice}" == 1 ] || [ "${ConfigChoice}" == 2 ]; then
 	    Reset=0
 	else
-	    printf "Must enter 1 or 2\n"
+	    printf "\nMust enter 1 or 2\n"
 	fi
     done
 
