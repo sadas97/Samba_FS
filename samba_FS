@@ -9,8 +9,8 @@ if [ "$EUID" == 0 ]; then
 #Confirming that conditions needed for the correct funtioning of the script are met
     printf "\nBefore you run this script make sure\n- No Samba processes are running"\
 "\n- You have set a static IP adresses for this machine\nIf you're configuring a domain member:"\
-"¨n- Your machine correctly resolves fully-qualified domain name and short hostname (in /etc/hosts)\n"\
-"\n- Machine has synchronised time using NTP"
+"¨n- Your machine correctly resolves fully-qualified domain name and short hostname (in /etc/hosts)"\
+"\n- Machine has synchronised time using NTP\n"
 
 printf "Are these conditions met? y/n\n"
     ConfirmReset=1
