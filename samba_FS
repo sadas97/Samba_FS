@@ -5,9 +5,38 @@ if [ "$EUID" == 0 ]; then
 
 #Create a log file
     touch /var/log/samba_FS.log
+    
+#Confirming that conditions needed for the correct funtioning of the script are met
+    printf "\nBefore you run this script make sure\n- No Samba processes are running"\
+"\n- You have set a static IP adresses for this machine\nIf you're configuring a domain member:"\
+"¨n- Your machine correctly resolves fully-qualified domain name and short hostname (in /etc/hosts)\n"\
+"\n- Machine has synchronised time using NTP"
+
+printf "Are these conditions met? y/n\n"
+    ConfirmReset=1
+    while [ "${ConfirmReset}" == 1 ]; do
+	if [ -z "${ConfirmMessage}" ]; then
+	    ConfirmMessage=1
+	elif [ "${ConfirmMessage}" ]; then
+	    printf "\nMust enter y or n\n"
+	fi
+
+	read -p ">" ConfirmChoice
+
+	if [ "${ConfirmChoice}" == y ] || [ "${ConfirmChoice}" == n ]; then 
+	    ConfirmReset=0
+	fi
+    done
+
+#End script if user chooses 'no'
+    if [ "${ConfirmChoice}" == n ]; then
+	printf "After you finish these steps run the script again\n"
+	printf "$(date '+%d/%m/%Y %H:%M:%S') Script terminated (Starting conditions not met)\n" >> /var/log/samba_FS.log
+	exit 0
+    fi
 
 #Choosing how to configure samba
-    printf "Choose your configuration\n1 - Configure as a Standalone File Server\n"\
+    printf "Choose your configuration\n1 - Configure as a Standalone Samba server\n"\
 "2 - Configure as Domain Member\n"
 #Asking user for input. If he inserts anything other than the choices presented he is asked
 #again
