@@ -72,7 +72,7 @@ printf "Are these conditions met? y/n\n"
 	printf "$(date '+%d/%m/%Y %H:%M:%S') Configuring standalone Samba\n" >> /var/log/samba_FS.log
 
 #System installs samba and its dependencies
-	apt install acl attr samba samba-dsdb-modules samba-vfs-modules
+	DEBIAN_FRONTEND=noninteractive apt install acl attr samba samba-dsdb-modules samba-vfs-modules
 	printf "$(date '+%d/%m/%Y %H:%M:%S') Packages installed\n" >> /var/log/samba_FS.log
 
 	#Find logging parameters and replace their lines
