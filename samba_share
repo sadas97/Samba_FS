@@ -99,22 +99,6 @@ if [ "$EUID" == 0 ]; then
 	    fi
 	done
 
-	#Should the share allow guest users?
-	printf "\nDo you want to allow guest access? Guest users will only have read and execute\n"\
-"permissions (y/n)\n"
-	Reset=1
-	while [ "${Reset}" == 1 ]; do
-	    read -p ">" Guest
-	    if [ "${Guest}" == y ]; then 
-		Reset=0
- 		attributes="${attributes}\n	guest ok = yes"
-	    elif [ "${Guest}" == n ]; then
-		Reset=0
-		attributes="${attributes}\n	guest ok = no"
-	    else
-		printf "\nMust enter y or n\n"
-	    fi
-	done
 
 #If it doesn't exist, create a folder for the share files
 	if [ ! -d /etc/samba/share/ ]; then
