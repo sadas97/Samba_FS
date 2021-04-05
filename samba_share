@@ -241,21 +241,7 @@ if [ "$EUID" == 0 ]; then
 	    fi
 	done
 
-	#Execute permissions
-	printf "\nDo you want the ${FirstPar} to have the the execute permission? (y/n)\n"
-	Reset=1
-	while [ "${Reset}" == 1 ]; do
-	    read -p ">" Execute
-	    if [ "${Execute}" == y ]; then 
-		Reset=0
-		Permission="${Permission}x"
-	    elif [ "${Execute}" == n ]; then
-		Reset=0
-		Permission="${Permission}-"
-	    else
-		printf "\nMust enter y or n\n"
-	    fi
-	done
+	Permission="${Permission}x"
 
 #If the samba is a domain member add a backslash to SecondPar which separates the domain name from the user/group name
 	if [ "${SambaSetup}" == 2 ]; then
