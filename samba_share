@@ -239,7 +239,7 @@ if [ "$EUID" == 0 ]; then
 		printf "\nMust enter y or n\n"
 	    fi
 	done
-
+	#Add execute permission
 	Permission="${Permission}x"
 
 #If the samba is a domain member add a backslash to SecondPar which separates the domain name from the user/group name
