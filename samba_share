@@ -170,6 +170,18 @@ if [ "$EUID" == 0 ]; then
 		fi
 	    done
 
+#If samba is a standalone server add the username to the valid users parameter
+	    if [ "${SambaSetup}" == 1 ]; then
+		existingValid=$(cat /etc/samba/share/${ShareName} | grep -w "valid users")
+		if [ -z "${existingValid}" ]; then
+		    printf "\n	valid users = ${SecondPar}" >> /etc/samba/share/${ShareName}
+		else
+		    sed -i "s/${existingValid}//" /etc/samba/share/${ShareName}
+		    printf "${existingValid} ${SecondPar}" >> /etc/samba/share/${ShareName}
+		fi
+		#Unset the existingValid variable so that it doesn't intervene if the user chooses to add another permission
+		unset existingValid
+	    fi
 
 	elif [ "${AddUserOrGroup}" == g ]; then
 
@@ -182,6 +194,18 @@ if [ "$EUID" == 0 ]; then
 		    printf "\nThe group name must not be empty\n"
 		fi
 	    done
+    
+#If samba is a standalone server add the groupname to the valid users parameter
+	    if [ "${SambaSetup}" == 1 ]; then
+		existingValid=$(cat /etc/samba/share/${ShareName} | grep -w "valid users")
+		if [ -z "${existingValid}" ]; then
+		    printf "\n	valid users = @${SecondPar}" >> /etc/samba/share/${ShareName}
+		else
+		    sed -i "s/${existingValid}//" /etc/samba/share/${ShareName}
+		    printf "${existingValid} @${SecondPar}" >> /etc/samba/share/${ShareName}
+		fi
+		unset existingValid
+	    fi
 
 	fi
 #Ask which permissions should the user/group have
