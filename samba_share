@@ -99,22 +99,6 @@ if [ "$EUID" == 0 ]; then
 	    fi
 	done
 
-	#Should the share allow guest users?
-	printf "\nDo you want to allow guest access? Guest users will only have read and execute\n"\
-"permissions (y/n)\n"
-	Reset=1
-	while [ "${Reset}" == 1 ]; do
-	    read -p ">" Guest
-	    if [ "${Guest}" == y ]; then 
-		Reset=0
- 		attributes="${attributes}\n	guest ok = yes"
-	    elif [ "${Guest}" == n ]; then
-		Reset=0
-		attributes="${attributes}\n	guest ok = no"
-	    else
-		printf "\nMust enter y or n\n"
-	    fi
-	done
 
 #If it doesn't exist, create a folder for the share files
 	if [ ! -d /etc/samba/share/ ]; then
@@ -126,17 +110,23 @@ if [ "$EUID" == 0 ]; then
 	smbcontrol all reload-config
     fi
 
+    if [ "${ShareOrPermiss}" == 1 ]; then
 #If samba is a domain member setup default permissions
-    if [ "${SambaSetup}" == 2 ]; then
-	setfacl -R -m group::--- ${FolderPath}
-	setfacl -R -m default:group::--- ${FolderPath}
+	if [ "${SambaSetup}" == 2 ]; then
+	    setfacl -R -m group::--- ${FolderPath}
+	    setfacl -R -m default:group::--- ${FolderPath}
 
-	setfacl -R -m group:"${DomainName}\Domain Admins":rwx ${FolderPath}
-	setfacl -R -m other::--- ${FolderPath}
-	setfacl -R -m default:group:"${DomainName}\Domain Admins":rwx ${FolderPath}
-	setfacl -R -m default:other::--- ${FolderPath}
-	printf "The domain group Domain Admins has read, write and execute permissions\n"
+	    setfacl -R -m group:"${DomainName}\Domain Admins":rwx ${FolderPath}
+	    setfacl -R -m other::--- ${FolderPath}
+	    setfacl -R -m default:group:"${DomainName}\Domain Admins":rwx ${FolderPath}
+	    setfacl -R -m default:other::--- ${FolderPath}
+	    printf "The domain group Domain Admins has read, write and execute permissions\n"
+	elif [ "${SambaSetup}" == 1 ]; then
+	    setfacl -R -m group::--- ${FolderPath}
+	    setfacl -R -m default:group::--- ${FolderPath}
+	fi
     fi
+
 
 #Ask if the user wants to add permissions (Only if they're creating a new share)
     if [ "${ShareOrPermiss}" == 1 ]; then
