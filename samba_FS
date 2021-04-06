@@ -103,12 +103,12 @@ printf "Are these conditions met? y/n\n"
 	    fi
 	done
 
-	#IP of the main DC
-	printf "Enter the IP of the main DC\n"
+	#IP of a DC
+	printf "Enter the IP of a DC\n"
 	while [ -z "${PDCIP}" ]; do
 	    read -p ">" PDCIP
 	    if [ -z "${PDCIP}" ]; then
-		printf "\nThe IP of the main DC must not be empty\n"
+		printf "\nThe IP of a DC must not be empty\n"
 	    fi
 	done
 
