@@ -78,7 +78,7 @@ printf "Are these conditions met? y/n\n"
 	#Find logging parameters and replace their lines
 	sed -i "/log file =.*/c\   log file = $LogFile\n   log level = $LogLevel" /etc/samba/smb.conf
 
-	printf "To access shares you must add users to samba using: smbpasswd -a 'username'\n"
+	printf "\nTo access shares you must add users to samba using: smbpasswd -a 'username'\n"
 	printf "Run samba_share script to create a new share\n"
 #Configuring a domain member
     elif [ "${ConfigChoice}" == 2 ]; then
