@@ -5,11 +5,11 @@ if [ "$EUID" == 0 ]; then
 
 #Create a log file
     touch /var/log/samba_FS.log
-    
+
 #Confirming that conditions needed for the correct funtioning of the script are met
     printf "\nBefore you run this script make sure\n- No Samba processes are running"\
-"\n- You have set a static IP adresses for this machine\nIf you're configuring a domain member:"\
-"¨n- Your machine correctly resolves fully-qualified domain name and short hostname (in /etc/hosts)"\
+"\n- You have set static IP adresses for this machine\nIf you're configuring a domain member:"\
+"\n- Your machine correctly resolves fully-qualified domain name and short hostname (in /etc/hosts)"\
 "\n- Machine has synchronised time using NTP\n"
 
 printf "Are these conditions met? y/n\n"
@@ -104,11 +104,11 @@ printf "Are these conditions met? y/n\n"
 	done
 
 	#IP of the main DC
-	printf "Enter the IP of the primary DC\n"
+	printf "Enter the IP of the main DC\n"
 	while [ -z "${PDCIP}" ]; do
 	    read -p ">" PDCIP
 	    if [ -z "${PDCIP}" ]; then
-		printf "\nThe IP if the primary DC must not be empty\n"
+		printf "\nThe IP of the main DC must not be empty\n"
 	    fi
 	done
 
@@ -133,6 +133,7 @@ printf "Are these conditions met? y/n\n"
 #Replace the smb.conf file with the scripts pre-written smb.conf
 	cp -f $(dirname $0)/.smb.conf /etc/samba/smb.conf
 
+#Replace tags in custom smb.conf
 	sed -i "s/KrbRealm/${KerberosRealm^^}/g" /etc/samba/smb.conf
 	sed -i "s/NetBIOSdomain/${DomainName^^}/g" /etc/samba/smb.conf
 	printf "$(date '+%d/%m/%Y %H:%M:%S') Original Samba configuration file has been replaced and moved to /etc/sambaBckp/\n" >> /var/log/samba_FS.log
