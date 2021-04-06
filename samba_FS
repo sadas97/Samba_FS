@@ -95,7 +95,7 @@ printf "Are these conditions met? y/n\n"
         done
 
 	#Kerberos realm
-	printf "Enter the kerberos realm\n"
+	printf "Enter the kerberos realm (Same as DNS domain name)\n"
 	while [ -z "${KerberosRealm}" ]; do
 	    read -p ">" KerberosRealm
 	    if [ -z "${KerberosRealm}" ]; then
